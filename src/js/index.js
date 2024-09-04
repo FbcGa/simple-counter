@@ -17,8 +17,6 @@ function App() {
       intervalId = setInterval(() => {
         if (counter > 0) {
           setCounter(counter - 1);
-        } else {
-          setIsRunning(false);
         }
       }, 1000);
     }
@@ -29,13 +27,18 @@ function App() {
   }, [isRunning, counter]);
 
   useEffect(() => {
-    if (counter === alertTime) {
+    if (counter === alertTime && alertTime !== null) {
       alert("Se alcanzó el tiempo establecido");
+      setIsRunning(false); // Detenemos el contador
     }
   }, [counter, alertTime]);
 
   const handleStart = () => {
-    setIsRunning(true);
+    if (initialValue > 0) {
+      setIsRunning(true);
+    } else {
+      alert("Por favor, ingrese un valor inicial válido.");
+    }
   };
 
   const handleStop = () => {
@@ -48,12 +51,26 @@ function App() {
   };
 
   const handleInputChange = (e) => {
-    setInitialValue(parseInt(e.target.value));
-    setCounter(parseInt(e.target.value));
+    const value = parseInt(e.target.value);
+    if (value > 0) {
+      setInitialValue(value);
+      setCounter(value);
+    } else {
+      alert("El valor inicial debe ser mayor que 0.");
+    }
   };
 
   const handleAlertInputChange = (e) => {
-    setAlertTime(parseInt(e.target.value));
+    const value = parseInt(e.target.value);
+    if (value > 0) {
+      if (initialValue && value >= initialValue) {
+        alert("El tiempo de alerta debe ser menor que el valor inicial.");
+      } else {
+        setAlertTime(value);
+      }
+    } else {
+      alert("El tiempo de alerta debe ser mayor que 0.");
+    }
   };
 
   const calculateDigits = (value) => {
@@ -79,7 +96,7 @@ function App() {
         type="number"
         value={alertTime}
         onChange={handleAlertInputChange}
-        placeholder="Ingrese el tiempo de alerta. Menor a 200"
+        placeholder="Ingrese el tiempo de alerta. Menor al valor inicial"
       />
       <section className="btns">
         <button onClick={handleStart}>Iniciar</button>
